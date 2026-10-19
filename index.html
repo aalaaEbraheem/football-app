@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق حجز ملعب الأبطال - Champion Field</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                            dark: '#0f172a'
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            user-select: none;
+        }
+        /* Hide scrollbars for slick mobile feel */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Mobile phone container shadow */
+        .phone-shadow {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(34, 197, 94, 0.15);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-start p-2 sm:p-6 bg-slate-950">
+
+    <!-- Header Switcher Bar (App View Controller) -->
+    <header class="w-full max-w-md mb-4 bg-slate-900 border border-slate-800 rounded-2xl p-2 flex items-center justify-between shadow-lg backdrop-blur-md">
+        <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span class="text-xs font-bold text-slate-300">معاينة تفاعلية حية</span>
+        </div>
+        <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+            <button id="btn-mode-user" onclick="switchMode('user')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600 text-white shadow-md">
+                <i class="fa-solid fa-user-circle ml-1"></i> العميل
+            </button>
+            <button id="btn-mode-admin" onclick="switchMode('admin')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white">
+                <i class="fa-solid fa-user-shield ml-1"></i> الأدمن
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Device Mockup Wrapper -->
+    <div class="w-full max-w-md h-[840px] max-h-[92vh] bg-slate-900 border-4 sm:border-[8px] border-slate-800 rounded-[40px] phone-shadow flex flex-col overflow-hidden relative">
+        
+        <!-- Mobile Top Notch / Island & Status Bar -->
+        <div class="bg-slate-950 pt-3 pb-2 px-6 flex justify-between items-center z-50 border-b border-slate-800/50">
+            <span class="text-xs font-semibold text-slate-400" id="current-time">09:41</span>
+            <div class="w-20 h-4 bg-slate-800 rounded-full flex items-center justify-center gap-1">
+                <div class="w-2 h-2 rounded-full bg-slate-600"></div>
+            </div>
+            <div class="flex items-center gap-1.5 text-xs text-slate-400">
+                <i class="fa-solid fa-signal text-[10px]"></i>
+                <i class="fa-solid fa-wifi text-[10px]"></i>
+                <i class="fa-solid fa-battery-full text-emerald-400"></i>
+            </div>
+        </div>
+
+        <!-- APP CONTENT AREA (SCROLLABLE) -->
+        <div id="app-container" class="flex-1 overflow-y-auto no-scrollbar relative bg-slate-900 text-slate-100 pb-20">
+            
+            <!-- ================= USER VIEW ================= -->
+            <div id="user-view" class="block">
+                
+                <!-- Hero Banner & Pitch Info -->
+                <div class="relative h-48 bg-slate-800 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1529900748604-07564a03e7a6?auto=format&fit=crop&w=800&q=80" alt="ملعب الأبطال" class="w-full h-full object-cover opacity-60">
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent"></div>
+                    
+                    <div class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-md px-3 py-1 rounded-full border border-emerald-500/30 text-xs font-bold text-emerald-400 flex items-center gap-1">
+                        <i class="fa-solid fa-circle text-[8px]"></i> مفتوح الآن للحجز
+                    </div>
+
+                    <div class="absolute bottom-3 right-4 left-4">
+                        <h1 class="text-xl font-black text-white flex items-center gap-2">
+                            ملعب الأبطال <span class="text-xs font-normal text-slate-300 bg-emerald-950/80 border border-emerald-700/50 px-2 py-0.5 rounded-md">خماسي ممتاز</span>
+                        </h1>
+                        <p class="text-xs text-slate-300 mt-1 flex items-center gap-1">
+                            <i class="fa-solid fa-location-dot text-emerald-400"></i> القافلة، بالقرب من الطريق الرئيسي
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Pitch Quick Stats & Amenities -->
+                <div class="p-4 space-y-4">
+                    <div class="grid grid-cols-3 gap-2 text-center bg-slate-950 p-2.5 rounded-2xl border border-slate-800">
+                        <div class="border-l border-slate-800">
+                            <span class="text-[10px] text-slate-400 block">سعر الساعة</span>
+                            <span class="text-sm font-black text-emerald-400">200 ج.م</span>
+                        </div>
+                        <div class="border-l border-slate-800">
+                            <span class="text-[10px] text-slate-400 block">نوع النجيل</span>
+                            <span class="text-xs font-bold text-slate-200">صناعي درجة A</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 block">الإضاءة</span>
+                            <span class="text-xs font-bold text-slate-200">كشافات LED</span>
+                        </div>
+                    </div>
+
+                    <!-- Amenities Icons -->
+                    <div class="flex justify-around items-center py-2 text-slate-400 text-xs border-b border-slate-800">
+                        <div class="flex items-center gap-1"><i class="fa-solid fa-shower text-emerald-400"></i> غرف غيار</div>
+                        <div class="flex items-center gap-1"><i class="fa-solid fa-square-parking text-emerald-400"></i> جراج خاص</div>
+                        <div class="flex items-center gap-1"><i class="fa-solid fa-bottle-water text-emerald-400"></i> كافيه/مشروبات</div>
+                    </div>
+
+                    <!-- Booking Tab Navigation -->
+                    <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+                        <button id="tab-btn-book" onclick="switchUserTab('book')" class="flex-1 py-2 text-center rounded-lg text-xs font-bold bg-emerald-600 text-white transition-all">
+                            <i class="fa-solid fa-calendar-plus ml-1"></i> حجز موعد
+                        </button>
+                        <button id="tab-btn-mybookings" onclick="switchUserTab('mybookings')" class="flex-1 py-2 text-center rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all">
+                            <i class="fa-solid fa-receipt ml-1"></i> حجوزاتي (<span id="user-booking-count">0</span>)
+                        </button>
+                    </div>
+
+                    <!-- SUB-VIEW 1: BOOKING SELECTION -->
+                    <div id="user-subtab-book" class="space-y-4">
+                        <!-- Date Selector -->
+                        <div>
+                            <label class="text-xs font-bold text-slate-300 mb-2 block flex items-center justify-between">
+                                <span>اختر اليوم:</span>
+                                <span class="text-[10px] text-emerald-400" id="selected-date-display">اليوم</span>
+                            </label>
+                            <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1" id="date-selector-container">
+                                <!-- Dynamic Date Pill Options JS -->
+                            </div>
+                        </div>
+
+                        <!-- Slots Legend -->
+                        <div class="flex items-center justify-between text-[11px] bg-slate-950 p-2 rounded-xl border border-slate-800/80">
+                            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-md bg-slate-800 border border-slate-700"></span> متاح</div>
+                            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-md bg-emerald-600"></span> مُحدد</div>
+                            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-md bg-rose-950 border border-rose-800 text-rose-500 text-center leading-none">✕</span> محجوز</div>
+                        </div>
+
+                        <!-- Slots Grid -->
+                        <div>
+                            <h3 class="text-xs font-bold text-slate-300 mb-2 flex items-center gap-1">
+                                <i class="fa-solid fa-clock text-emerald-400"></i> المواعيد المتاحة (بالساعة)
+                            </h3>
+                            <div class="grid grid-cols-2 gap-2" id="time-slots-grid">
+                                <!-- Time Slots populated by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Selected Slot Action Bar -->
+                        <div id="booking-action-card" class="hidden bg-emerald-950/60 border border-emerald-500/40 p-3 rounded-2xl animate-fade-in">
+                            <div class="flex justify-between items-center mb-2">
+                                <div>
+                                    <span class="text-[10px] text-slate-300 block">الموعد المحدد:</span>
+                                    <span class="text-xs font-extrabold text-emerald-300" id="selected-slot-text">--</span>
+                                </div>
+                                <div class="text-left">
+                                    <span class="text-[10px] text-slate-300 block">الإجمالي:</span>
+                                    <span class="text-sm font-black text-emerald-400">200 ج.م</span>
+                                </div>
+                            </div>
+                            <button onclick="openBookingModal()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-xs rounded-xl shadow-lg shadow-emerald-900/40 transition-all flex items-center justify-center gap-2">
+                                إكمال الحجز الآن <i class="fa-solid fa-arrow-left"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SUB-VIEW 2: MY BOOKINGS -->
+                    <div id="user-subtab-mybookings" class="hidden space-y-3">
+                        <div id="my-bookings-list" class="space-y-3">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ================= ADMIN VIEW ================= -->
+            <div id="admin-view" class="hidden p-4 space-y-4">
+                
+                <!-- Admin Header -->
+                <div class="flex justify-between items-center bg-slate-950 p-3 rounded-2xl border border-slate-800">
+                    <div>
+                        <h2 class="text-sm font-black text-white flex items-center gap-2">
+                            <i class="fa-solid fa-gauge-high text-emerald-400"></i> لوحة التحكم الإدارية
+                        </h2>
+                        <p class="text-[10px] text-slate-400">إدارة حجز وصيانة ملعب الأبطال</p>
+                    </div>
+                    <button onclick="togglePitchStatus()" id="pitch-status-btn" class="px-2.5 py-1 text-[10px] font-bold rounded-lg border bg-emerald-950 border-emerald-500 text-emerald-400">
+                        الملعب: يعمل
+                    </button>
+                </div>
+
+                <!-- Financial & Stats Cards Grid -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800">
+                        <span class="text-[10px] font-bold text-slate-400 block mb-1">إجمالي الإيرادات</span>
+                        <div class="text-base font-black text-emerald-400" id="stat-revenue">0 ج.م</div>
+                        <span class="text-[9px] text-slate-500">من الحجوزات المؤكدة</span>
+                    </div>
+
+                    <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800">
+                        <span class="text-[10px] font-bold text-slate-400 block mb-1">المصاريف</span>
+                        <div class="text-base font-black text-rose-400" id="stat-expenses">0 ج.م</div>
+                        <span class="text-[9px] text-slate-500">صيانة، إضاءة، وغيرها</span>
+                    </div>
+
+                    <div class="bg-slate-950 p-3 rounded-2xl border border-emerald-900/50 col-span-2 flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-300 block">صافي الأرباح</span>
+                            <div class="text-lg font-black text-emerald-300" id="stat-net-profit">0 ج.م</div>
+                        </div>
+                        <div class="text-left border-r border-slate-800 pr-3">
+                            <span class="text-[10px] text-slate-400 block">الحجوزات النشطة</span>
+                            <span class="text-xs font-bold text-white" id="stat-booking-count">0 حجز</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs inside Admin -->
+                <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold">
+                    <button id="admin-tab-btn-schedule" onclick="switchAdminTab('schedule')" class="flex-1 py-1.5 rounded-lg bg-emerald-600 text-white transition-all">
+                        جدول الحجوزات
+                    </button>
+                    <button id="admin-tab-btn-expenses" onclick="switchAdminTab('expenses')" class="flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white transition-all">
+                        تسجيل المصاريف
+                    </button>
+                </div>
+
+                <!-- ADMIN SUBTAB 1: SCHEDULE & MANUAL BOOKING -->
+                <div id="admin-subtab-schedule" class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-bold text-slate-300">مراجعة الحجوزات اليومية</h3>
+                        <button onclick="openManualBookingModal()" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold rounded-lg shadow flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> حجز مباشر/شفهي
+                        </button>
+                    </div>
+
+                    <div class="space-y-2" id="admin-schedule-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- ADMIN SUBTAB 2: EXPENSES TRACKER -->
+                <div id="admin-subtab-expenses" class="hidden space-y-3">
+                    <!-- Add Expense Form -->
+                    <form onsubmit="handleAddExpense(event)" class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-2.5">
+                        <h3 class="text-xs font-bold text-slate-200">تسجيل مصروف جديد</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            <input type="text" id="expense-title" placeholder="اسم المصروف (مثلاً: لمبة LED)" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                            <input type="number" id="expense-amount" placeholder="المبلغ (ج.م)" required class="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <select id="expense-category" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-emerald-500">
+                                <option value="إضاءة واستهلاك">إضاءة واستهلاك</option>
+                                <option value="صيانة الملعب">صيانة الملعب</option>
+                                <option value="نظافة وأدوات">نظافة وأدوات</option>
+                                <option value="أخرى">مصاريف أخرى</option>
+                            </select>
+                            <button type="submit" class="w-full bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs py-1.5 rounded-xl transition-all">
+                                إضافة المصروف
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Expenses History List -->
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-400 mb-2">سجل المصاريف المسجلة</h4>
+                        <div id="expenses-list" class="space-y-2">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Mobile Bottom Nav bar (Purely visual UX enhancement) -->
+        <div class="absolute bottom-0 left-0 right-0 bg-slate-950/90 backdrop-blur-md border-t border-slate-800 py-2.5 px-6 flex justify-around items-center z-40">
+            <button onclick="switchMode('user')" class="flex flex-col items-center text-slate-400 hover:text-emerald-400 transition-colors">
+                <i class="fa-solid fa-futbol text-sm"></i>
+                <span class="text-[9px] mt-0.5">الملعب</span>
+            </button>
+            <button onclick="switchMode('user'); switchUserTab('mybookings');" class="flex flex-col items-center text-slate-400 hover:text-emerald-400 transition-colors">
+                <i class="fa-solid fa-calendar-check text-sm"></i>
+                <span class="text-[9px] mt-0.5">حجوزاتي</span>
+            </button>
+            <button onclick="switchMode('admin')" class="flex flex-col items-center text-slate-400 hover:text-emerald-400 transition-colors">
+                <i class="fa-solid fa-chart-line text-sm"></i>
+                <span class="text-[9px] mt-0.5">الأدمن</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: USER BOOKING FORM -->
+    <div id="modal-booking-form" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl relative animate-scale-up">
+            <button onclick="closeBookingModal()" class="absolute top-4 left-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-times"></i>
+            </button>
+
+            <div class="text-center">
+                <div class="w-10 h-10 bg-emerald-950 border border-emerald-500/40 rounded-full flex items-center justify-center mx-auto text-emerald-400 mb-2">
+                    <i class="fa-solid fa-futbol"></i>
+                </div>
+                <h3 class="text-base font-black text-white">تأكيد حجز الموعد</h3>
+                <p class="text-xs text-slate-400 mt-0.5" id="modal-slot-summary">--</p>
+            </div>
+
+            <form onsubmit="handleUserBookingSubmit(event)" class="space-y-3">
+                <div>
+                    <label class="text-[11px] font-bold text-slate-300 block mb-1">الاسم بالكامل *</label>
+                    <input type="text" id="user-input-name" required placeholder="مثال: أحمد محمود" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-bold text-slate-300 block mb-1">رقم الهاتف للتواصل *</label>
+                    <input type="tel" id="user-input-phone" required placeholder="010XXXXXXXX" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-bold text-slate-300 block mb-1">طريقة الدفع</label>
+                    <select id="user-input-payment" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                        <option value="كاش عند الوصول">كاش بالملعب (عند الوصول)</option>
+                        <option value="فودافون كاش / تحويل">تحويل فودافون كاش (Vodafone Cash)</option>
+                    </select>
+                </div>
+
+                <div class="p-3 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                    <span class="text-slate-400">الإجمالي المطلوبة:</span>
+                    <span class="font-black text-emerald-400 text-sm">200 ج.م</span>
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 font-black text-xs text-white rounded-xl shadow-lg shadow-emerald-900/30 transition-all">
+                    تأكيد إرسال الحجز
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: MANUAL ADMIN BOOKING -->
+    <div id="modal-admin-booking" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl relative">
+            <button onclick="closeManualBookingModal()" class="absolute top-4 left-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-times"></i>
+            </button>
+
+            <h3 class="text-sm font-black text-white text-center">إضافة حجز مباشر (شفهي / أدمن)</h3>
+
+            <form onsubmit="handleAdminManualBookingSubmit(event)" class="space-y-3">
+                <div>
+                    <label class="text-[11px] font-bold text-slate-300 block mb-1">اسم العميل / الفريق</label>
+                    <input type="text" id="admin-input-name" required placeholder="مثال: حجز مباشر - كابتن علي" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-white focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div>
+                    <label class="text-[11px] font-bold text-slate-300 block mb-1">الساعة</label>
+                    <select id="admin-input-slot" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+
+                <button type="submit" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 font-bold text-xs text-white rounded-xl shadow transition-all">
+                    تسجيل الحجز مباشرة
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: SUCCESS RECEIPT -->
+    <div id="modal-receipt" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-emerald-500/30 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl text-center relative">
+            <div class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-xl">
+                <i class="fa-solid fa-check-circle"></i>
+            </div>
+            
+            <h3 class="text-base font-black text-white">تم استلام طلب الحجز بنجاح!</h3>
+            <p class="text-xs text-slate-300">تم تسجيل موعدك في الانتظار/التأكيد</p>
+
+            <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 text-right text-xs space-y-1.5">
+                <div class="flex justify-between text-slate-400">
+                    <span>كود الحجز:</span>
+                    <span id="receipt-code" class="font-mono text-emerald-400 font-bold">#---</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                    <span>الاسم:</span>
+                    <span id="receipt-name" class="text-slate-200 font-bold">--</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                    <span>الموعد:</span>
+                    <span id="receipt-slot" class="text-slate-200 font-bold">--</span>
+                </div>
+                <div class="flex justify-between text-slate-400">
+                    <span>طريقة الدفع:</span>
+                    <span id="receipt-payment" class="text-slate-200 font-bold">--</span>
+                </div>
+            </div>
+
+            <div class="pt-2 space-y-2">
+                <a id="receipt-whatsapp-link" target="_blank" href="#" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all">
+                    <i class="fa-brands fa-whatsapp text-base"></i> إرسال تأكيد عبر واتساب
+                </a>
+                <button onclick="closeReceiptModal()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl">
+                    إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // APP INITIAL STATE & MOCK DATA
+        let pitchActive = true;
+        let selectedDateIndex = 0; // 0 = اليوم, 1 = غداً, etc.
+        let selectedSlotId = null;
+
+        const dates = [
+            { label: 'اليوم', dateStr: '2026-10-20' },
+            { label: 'غداً', dateStr: '2026-10-21' },
+            { label: 'الفيوم', dateStr: '2026-10-22' },
+            { label: 'الجمعة', dateStr: '2026-10-23' }
+        ];
+
+        // Default time slots available daily
+        const baseTimeSlots = [
+            { id: 'slot-1', time: '05:00 م - 06:00 م', period: 'مساءً' },
+            { id: 'slot-2', time: '06:00 م - 07:00 م', period: 'مساءً' },
+            { id: 'slot-3', time: '07:00 م - 08:00 م', period: 'مساءً' },
+            { id: 'slot-4', time: '08:00 م - 09:00 م', period: 'مساءً' },
+            { id: 'slot-5', time: '09:00 م - 10:00 م', period: 'مساءً' },
+            { id: 'slot-6', time: '10:00 م - 11:00 م', period: 'مساءً' },
+            { id: 'slot-7', time: '11:00 م - 12:00 منتصف الليل', period: 'مساءً' },
+            { id: 'slot-8', time: '12:00 ص - 01:00 ص', period: 'صباحاً' }
+        ];
+
+        // Central Reactive Store for Bookings
+        let bookings = [
+            {
+                id: 'BK-101',
+                customerName: 'محمود حسن',
+                phone: '01012345678',
+                slotId: 'slot-2',
+                timeText: '06:00 م - 07:00 م',
+                dateStr: '2026-10-20',
+                status: 'confirmed', // 'pending', 'confirmed', 'cancelled'
+                paymentMethod: 'كاش عند الوصول',
+                amount: 200
+            },
+            {
+                id: 'BK-102',
+                customerName: 'كابتن عمرو (فريق التحدي)',
+                phone: '01198765432',
+                slotId: 'slot-5',
+                timeText: '09:00 م - 10:00 م',
+                dateStr: '2026-10-20',
+                status: 'pending',
+                paymentMethod: 'فودافون كاش / تحويل',
+                amount: 200
+            }
+        ];
+
+        // Central Store for Expenses
+        let expenses = [
+            { id: 1, title: 'صيانة كشافات LED', category: 'إضاءة واستهلاك', amount: 300, date: '2026-10-18' },
+            { id: 2, title: 'شراء كرة قدم جديدة', category: 'أخرى', amount: 450, date: '2026-10-19' }
+        ];
+
+        // INITIALIZATION
+        window.onload = function() {
+            updateLiveClock();
+            setInterval(updateLiveClock, 30000);
+            renderDateSelector();
+            renderTimeSlots();
+            renderUserBookingsList();
+            renderAdminSchedule();
+            renderExpenses();
+            calculateAdminStats();
+        };
+
+        function updateLiveClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('current-time').innerText = `${hours}:${minutes}`;
+        }
+
+        // VIEW & TAB SWITCHERS
+        function switchMode(mode) {
+            const userBtn = document.getElementById('btn-mode-user');
+            const adminBtn = document.getElementById('btn-mode-admin');
+            const userView = document.getElementById('user-view');
+            const adminView = document.getElementById('admin-view');
+
+            if (mode === 'user') {
+                userView.classList.remove('hidden');
+                adminView.classList.add('hidden');
+                userBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600 text-white shadow-md";
+                adminBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white";
+            } else {
+                userView.classList.add('hidden');
+                adminView.classList.remove('hidden');
+                adminBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all bg-emerald-600 text-white shadow-md";
+                userBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold transition-all text-slate-400 hover:text-white";
+            }
+        }
+
+        function switchUserTab(tab) {
+            const bookTabBtn = document.getElementById('tab-btn-book');
+            const mybookingsTabBtn = document.getElementById('tab-btn-mybookings');
+            const bookSubtab = document.getElementById('user-subtab-book');
+            const mybookingsSubtab = document.getElementById('user-subtab-mybookings');
+
+            if (tab === 'book') {
+                bookSubtab.classList.remove('hidden');
+                mybookingsSubtab.classList.add('hidden');
+                bookTabBtn.className = "flex-1 py-2 text-center rounded-lg text-xs font-bold bg-emerald-600 text-white transition-all";
+                mybookingsTabBtn.className = "flex-1 py-2 text-center rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all";
+            } else {
+                bookSubtab.classList.add('hidden');
+                mybookingsSubtab.classList.remove('hidden');
+                mybookingsTabBtn.className = "flex-1 py-2 text-center rounded-lg text-xs font-bold bg-emerald-600 text-white transition-all";
+                bookTabBtn.className = "flex-1 py-2 text-center rounded-lg text-xs font-bold text-slate-400 hover:text-white transition-all";
+                renderUserBookingsList();
+            }
+        }
+
+        function switchAdminTab(tab) {
+            const schedBtn = document.getElementById('admin-tab-btn-schedule');
+            const expBtn = document.getElementById('admin-tab-btn-expenses');
+            const schedSubtab = document.getElementById('admin-subtab-schedule');
+            const expSubtab = document.getElementById('admin-subtab-expenses');
+
+            if (tab === 'schedule') {
+                schedSubtab.classList.remove('hidden');
+                expSubtab.classList.add('hidden');
+                schedBtn.className = "flex-1 py-1.5 rounded-lg bg-emerald-600 text-white transition-all";
+                expBtn.className = "flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white transition-all";
+            } else {
+                schedSubtab.classList.add('hidden');
+                expSubtab.classList.remove('hidden');
+                expBtn.className = "flex-1 py-1.5 rounded-lg bg-emerald-600 text-white transition-all";
+                schedBtn.className = "flex-1 py-1.5 rounded-lg text-slate-400 hover:text-white transition-all";
+            }
+        }
+
+        // RENDER USER DATE SELECTOR
+        function renderDateSelector() {
+            const container = document.getElementById('date-selector-container');
+            container.innerHTML = dates.map((d, index) => {
+                const isSelected = index === selectedDateIndex;
+                return `
+                    <button onclick="selectDate(${index})" class="flex-shrink-0 px-4 py-2 rounded-xl border text-xs font-bold transition-all ${
+                        isSelected 
+                        ? 'bg-emerald-600 border-emerald-500 text-white shadow-md' 
+                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                    }">
+                        ${d.label}
+                    </button>
+                `;
+            }).join('');
+            document.getElementById('selected-date-display').innerText = dates[selectedDateIndex].label;
+        }
+
+        function selectDate(index) {
+            selectedDateIndex = index;
+            selectedSlotId = null;
+            document.getElementById('booking-action-card').classList.add('hidden');
+            renderDateSelector();
+            renderTimeSlots();
+        }
+
+        // RENDER TIME SLOTS
+        function renderTimeSlots() {
+            const grid = document.getElementById('time-slots-grid');
+            const currentDateStr = dates[selectedDateIndex].dateStr;
+
+            grid.innerHTML = baseTimeSlots.map(slot => {
+                // Check if booked for current selected date
+                const booking = bookings.find(b => b.dateStr === currentDateStr && b.slotId === slot.id && b.status !== 'cancelled');
+                const isBooked = !!booking;
+                const isSelected = selectedSlotId === slot.id;
+
+                if (!pitchActive) {
+                    return `
+                        <div class="p-3 bg-slate-950/50 border border-slate-800/50 rounded-xl opacity-50 text-center">
+                            <span class="text-xs font-bold text-slate-500 block">${slot.time}</span>
+                            <span class="text-[9px] text-rose-500">مغلق للصيانة</span>
+                        </div>
+                    `;
+                }
+
+                if (isBooked) {
+                    return `
+                        <div class="p-2.5 bg-rose-950/20 border border-rose-900/40 rounded-2xl flex justify-between items-center opacity-80">
+                            <div>
+                                <span class="text-xs font-bold text-slate-300 block">${slot.time}</span>
+                                <span class="text-[9px] text-rose-400 font-semibold">محجوز</span>
+                            </div>
+                            <span class="w-5 h-5 rounded-full bg-rose-900/50 text-rose-400 flex items-center justify-center text-[10px]">✕</span>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <button onclick="selectSlot('${slot.id}')" class="p-2.5 rounded-2xl border text-right transition-all flex justify-between items-center ${
+                        isSelected 
+                        ? 'bg-emerald-600 border-emerald-400 text-white shadow-lg ring-2 ring-emerald-500/30' 
+                        : 'bg-slate-950 border-slate-800/90 text-slate-200 hover:border-slate-700'
+                    }">
+                        <div>
+                            <span class="text-xs font-bold block">${slot.time}</span>
+                            <span class="text-[9px] ${isSelected ? 'text-emerald-100' : 'text-emerald-400'}">متاح للحجز</span>
+                        </div>
+                        <span class="w-4 h-4 rounded-full border ${isSelected ? 'border-white bg-white' : 'border-slate-700'}"></span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectSlot(slotId) {
+            selectedSlotId = slotId;
+            const slot = baseTimeSlots.find(s => s.id === slotId);
+            document.getElementById('selected-slot-text').innerText = `${dates[selectedDateIndex].label} (${slot.time})`;
+            document.getElementById('booking-action-card').classList.remove('hidden');
+            renderTimeSlots();
+        }
+
+        // MODAL ACTIONS & USER BOOKING SUBMISSION
+        function openBookingModal() {
+            if (!selectedSlotId) return;
+            const slot = baseTimeSlots.find(s => s.id === selectedSlotId);
+            document.getElementById('modal-slot-summary').innerText = `الموعد: ${dates[selectedDateIndex].label} - ${slot.time}`;
+            document.getElementById('modal-booking-form').classList.remove('hidden');
+        }
+
+        function closeBookingModal() {
+            document.getElementById('modal-booking-form').classList.add('hidden');
+        }
+
+        function handleUserBookingSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('user-input-name').value;
+            const phone = document.getElementById('user-input-phone').value;
+            const payment = document.getElementById('user-input-payment').value;
+            const slot = baseTimeSlots.find(s => s.id === selectedSlotId);
+            const bookingCode = 'BK-' + Math.floor(100 + Math.random() * 900);
+
+            const newBooking = {
+                id: bookingCode,
+                customerName: name,
+                phone: phone,
+                slotId: selectedSlotId,
+                timeText: slot.time,
+                dateStr: dates[selectedDateIndex].dateStr,
+                status: 'pending',
+                paymentMethod: payment,
+                amount: 200
+            };
+
+            bookings.push(newBooking);
+            
+            // Reset Selection Form
+            closeBookingModal();
+            document.getElementById('user-input-name').value = '';
+            document.getElementById('user-input-phone').value = '';
+            selectedSlotId = null;
+            document.getElementById('booking-action-card').classList.add('hidden');
+
+            // Refresh UI
+            renderTimeSlots();
+            renderUserBookingsList();
+            renderAdminSchedule();
+            calculateAdminStats();
+
+            // Show Receipt Modal
+            showReceiptModal(newBooking);
+        }
+
+        function showReceiptModal(booking) {
+            document.getElementById('receipt-code').innerText = `#${booking.id}`;
+            document.getElementById('receipt-name').innerText = booking.customerName;
+            document.getElementById('receipt-slot').innerText = `${booking.timeText}`;
+            document.getElementById('receipt-payment').innerText = booking.paymentMethod;
+
+            const waMsg = encodeURIComponent(`مرحباً، أود تأكيد حجزي لملعب الأبطال:\nكود الحجز: ${booking.id}\nالاسم: ${booking.customerName}\nالموعد: ${booking.timeText}`);
+            document.getElementById('receipt-whatsapp-link').href = `https://wa.me/201000000000?text=${waMsg}`;
+
+            document.getElementById('modal-receipt').classList.remove('hidden');
+        }
+
+        function closeReceiptModal() {
+            document.getElementById('modal-receipt').classList.add('hidden');
+        }
+
+        // USER BOOKINGS LIST
+        function renderUserBookingsList() {
+            const list = document.getElementById('my-bookings-list');
+            document.getElementById('user-booking-count').innerText = bookings.length;
+
+            if (bookings.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">لا توجد حجوزات مسجلة باسمك بعد.</p>`;
+                return;
+            }
+
+            list.innerHTML = bookings.map(b => {
+                let statusBadge = '';
+                if (b.status === 'confirmed') statusBadge = '<span class="px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 text-[9px] font-bold">مؤكد</span>';
+                else if (b.status === 'pending') statusBadge = '<span class="px-2 py-0.5 rounded-full bg-amber-950 text-amber-400 border border-amber-800 text-[9px] font-bold">قيد التأكيد</span>';
+                else statusBadge = '<span class="px-2 py-0.5 rounded-full bg-rose-950 text-rose-400 border border-rose-800 text-[9px] font-bold">ملغي</span>';
+
+                return `
+                    <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="font-mono text-xs text-emerald-400 font-bold">#${b.id}</span>
+                            ${statusBadge}
+                        </div>
+                        <div class="text-xs font-bold text-slate-200">${b.customerName} (${b.phone})</div>
+                        <div class="text-[11px] text-slate-400 flex items-center gap-1">
+                            <i class="fa-regular fa-clock text-emerald-400"></i> ${b.timeText}
+                        </div>
+                        <div class="text-[10px] text-slate-500 pt-1 border-t border-slate-900 flex justify-between">
+                            <span>طريقة الدفع: ${b.paymentMethod}</span>
+                            <span class="font-bold text-slate-300">200 ج.م</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ADMIN SCHEDULE & ACTIONS
+        function renderAdminSchedule() {
+            const list = document.getElementById('admin-schedule-list');
+            
+            if (bookings.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">لا توجد حجوزات مسجلة.</p>`;
+                return;
+            }
+
+            list.innerHTML = bookings.map(b => {
+                return `
+                    <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-xs font-black text-slate-100 block">${b.customerName}</span>
+                                <span class="text-[10px] text-slate-400">${b.phone} • <span class="text-emerald-400">${b.paymentMethod}</span></span>
+                            </div>
+                            <span class="font-mono text-xs text-slate-400 bg-slate-900 px-2 py-1 rounded-lg border border-slate-800">#${b.id}</span>
+                        </div>
+
+                        <div class="text-xs text-slate-300 bg-slate-900/60 p-2 rounded-xl flex justify-between items-center">
+                            <span><i class="fa-solid fa-clock text-emerald-400 ml-1"></i> ${b.timeText}</span>
+                            <span class="font-bold text-emerald-400">${b.amount} ج.م</span>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex gap-2 pt-1">
+                            ${b.status !== 'confirmed' ? `
+                                <button onclick="updateBookingStatus('${b.id}', 'confirmed')" class="flex-1 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] rounded-lg transition-all">
+                                    تأكيد الحجز
+                                </button>
+                            ` : `
+                                <span class="flex-1 py-1 text-center bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold text-[10px] rounded-lg">
+                                    <i class="fa-solid fa-check ml-1"></i> تم التأكيد
+                                </span>
+                            `}
+                            
+                            <button onclick="updateBookingStatus('${b.id}', 'cancelled')" class="px-3 py-1 bg-rose-950/60 hover:bg-rose-900 text-rose-400 border border-rose-800/60 font-bold text-[10px] rounded-lg transition-all">
+                                إلغاء
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateBookingStatus(id, newStatus) {
+            const booking = bookings.find(b => b.id === id);
+            if (booking) {
+                booking.status = newStatus;
+                renderAdminSchedule();
+                renderTimeSlots();
+                renderUserBookingsList();
+                calculateAdminStats();
+            }
+        }
+
+        function openManualBookingModal() {
+            const select = document.getElementById('admin-input-slot');
+            select.innerHTML = baseTimeSlots.map(s => `<option value="${s.id}">${s.time}</option>`).join('');
+            document.getElementById('modal-admin-booking').classList.remove('hidden');
+        }
+
+        function closeManualBookingModal() {
+            document.getElementById('modal-admin-booking').classList.add('hidden');
+        }
+
+        function handleAdminManualBookingSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('admin-input-name').value;
+            const slotId = document.getElementById('admin-input-slot').value;
+            const slot = baseTimeSlots.find(s => s.id === slotId);
+
+            bookings.push({
+                id: 'BK-' + Math.floor(100 + Math.random() * 900),
+                customerName: name,
+                phone: 'حجز مباشر',
+                slotId: slotId,
+                timeText: slot.time,
+                dateStr: dates[selectedDateIndex].dateStr,
+                status: 'confirmed',
+                paymentMethod: 'كاش مباشر',
+                amount: 200
+            });
+
+            closeManualBookingModal();
+            document.getElementById('admin-input-name').value = '';
+            renderAdminSchedule();
+            renderTimeSlots();
+            calculateAdminStats();
+        }
+
+        // EXPENSES LOGIC
+        function handleAddExpense(e) {
+            e.preventDefault();
+            const title = document.getElementById('expense-title').value;
+            const amount = parseFloat(document.getElementById('expense-amount').value);
+            const category = document.getElementById('expense-category').value;
+
+            expenses.push({
+                id: Date.now(),
+                title,
+                amount,
+                category,
+                date: new Date().toISOString().split('T')[0]
+            });
+
+            document.getElementById('expense-title').value = '';
+            document.getElementById('expense-amount').value = '';
+
+            renderExpenses();
+            calculateAdminStats();
+        }
+
+        function renderExpenses() {
+            const list = document.getElementById('expenses-list');
+            if (expenses.length === 0) {
+                list.innerHTML = `<p class="text-xs text-slate-500 text-center py-4">لا توجد مصاريف مسجلة.</p>`;
+                return;
+            }
+
+            list.innerHTML = expenses.map(exp => `
+                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                    <div>
+                        <span class="font-bold text-slate-200 block">${exp.title}</span>
+                        <span class="text-[9px] text-slate-500">${exp.category} • ${exp.date}</span>
+                    </div>
+                    <span class="font-black text-rose-400">-${exp.amount} ج.م</span>
+                </div>
+            `).join('');
+        }
+
+        // STATS COMPUTATION
+        function calculateAdminStats() {
+            const totalRevenue = bookings
+                .filter(b => b.status === 'confirmed')
+                .reduce((sum, b) => sum + b.amount, 0);
+
+            const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+            const netProfit = totalRevenue - totalExpenses;
+            const activeBookingsCount = bookings.filter(b => b.status !== 'cancelled').length;
+
+            document.getElementById('stat-revenue').innerText = `${totalRevenue} ج.م`;
+            document.getElementById('stat-expenses').innerText = `${totalExpenses} ج.م`;
+            document.getElementById('stat-net-profit').innerText = `${netProfit} ج.م`;
+            document.getElementById('stat-booking-count').innerText = `${activeBookingsCount} حجز`;
+        }
+
+        function togglePitchStatus() {
+            pitchActive = !pitchActive;
+            const btn = document.getElementById('pitch-status-btn');
+            if (pitchActive) {
+                btn.className = "px-2.5 py-1 text-[10px] font-bold rounded-lg border bg-emerald-950 border-emerald-500 text-emerald-400";
+                btn.innerText = "الملعب: يعمل";
+            } else {
+                btn.className = "px-2.5 py-1 text-[10px] font-bold rounded-lg border bg-rose-950 border-rose-500 text-rose-400";
+                btn.innerText = "الملعب: مغلق للصيانة";
+            }
+            renderTimeSlots();
+        }
+    </script>
+</body>
+</html>
